@@ -1,12 +1,13 @@
-4cfd09952136dacdc34f5efb42c5b0fc *DESCRIPTION
+21e9b153b0b8cd44f086a25dadf5d2d0 *DESCRIPTION
 1302683d5ecb7cbafe5ce2bf295213dc *LICENSE
 c675a4ce153f1fce716cd2c4f262318b *NAMESPACE
-11bddf29cf178d396af1ae4282b9a71f *R/file_contents.R
+f5cfa4b14f2fe72234aec8358a37e602 *NEWS.md
+83f4d89a842c4b9708f9556e24189183 *R/file_contents.R
 00708cbfd83e1a71b9c8c1fdc2516141 *R/highlight.R
-d94bd6c38d8196c62e57d3a95d016d85 *R/parse.R
+efd6002ae157e7e96b7d67e4506c617f *R/parse.R
 2110a5034a29dfb3a11200f5e52abacd *R/pause.R
 e507b511adee4c745b56bebfa0d77434 *R/profvis.R
-654b41b6a02a20ec77a2fc4b5eacf052 *R/utils.R
+ccd18d613e818e33640b54aa863fb9df *R/utils.R
 d23173e6384782d9447a6bf536db8151 *README.md
 9a43e3ae9eeb6821b99b41158d0b08cd *inst/htmlwidgets/lib/d3/LICENSE
 e9b501452b74836764e9c186f2ed337e *inst/htmlwidgets/lib/d3/d3.min.js
@@ -25,6 +26,8 @@ f5ea2b7b051de2c58a5ba3fa94b4a3a0 *man/pause.Rd
 7b0480c361d1250f8add6725e4151cf0 *man/profvis.Rd
 3fde9bc6db42f58b314496047a875d75 *man/profvisOutput.Rd
 c28918fe0fe688bf9c2e146c83397520 *man/renderProfvis.Rd
+9316fc5fe70b90d19c9573352e742055 *tests/manual-test-source.R
+286685919bc4cd45e6d7c1fb178dd583 *tests/manual-tests.R
 ab152bb85ac1b13ae373b17779fcc89b *tests/test-all.R
-d403651fccf84d456b124d21b3c0f5e2 *tests/testthat/test-parse.R
+faa465e45f56dc0c226a61dd2fe663e8 *tests/testthat/test-parse.R
 439af4d46d061fcf305571f9115bd9c6 *tests/testthat/test-parse.prof
