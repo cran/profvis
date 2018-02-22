@@ -1,6 +1,6 @@
 Package: profvis
 Title: Interactive Visualizations for Profiling R Code
-Version: 0.3.4
+Version: 0.3.5
 Authors@R: c(
     person("Winston", "Chang", email = "winston@rstudio.com", role = c("aut", "cre")),
     person("Javier", "Luraschi", email = "javier@rstudio.com", role = "aut"),
@@ -19,7 +19,7 @@ Suggests: knitr, ggplot2, rmarkdown, testthat, devtools
 RoxygenNote: 6.0.1.9000
 URL: https://rstudio.github.io/profvis/
 NeedsCompilation: yes
-Packaged: 2017-12-12 17:04:24 UTC; winston
+Packaged: 2018-02-22 03:10:02 UTC; winston
 Author: Winston Chang [aut, cre],
   Javier Luraschi [aut],
   RStudio [cph],
@@ -31,4 +31,4 @@ Author: Winston Chang [aut, cre],
   Ivan Sagalaev [ctb, cph] (highlight.js library)
 Maintainer: Winston Chang <winston@rstudio.com>
 Repository: CRAN
-Date/Publication: 2017-12-12 17:29:00 UTC
+Date/Publication: 2018-02-22 04:24:31 UTC

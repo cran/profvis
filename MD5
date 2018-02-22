@@ -1,8 +1,8 @@
-0dadf7d72477ff3636cfb21ad391a6a3 *DESCRIPTION
+2859eb8c3e2a703e291f7644c0bda2cd *DESCRIPTION
 1302683d5ecb7cbafe5ce2bf295213dc *LICENSE
 6b0324b3a4a4bd2c4bb3a4daef98fe26 *NAMESPACE
-2887fcf08a3bca7932e76e5ef2439fa1 *NEWS.md
-795232b35d1a4395edbe1186a343e3b7 *R/file_contents.R
+ac5fea9efeb9dec81f9f89a109b360ee *NEWS.md
+0b89ca0b9d6eec9c44d3b481498c060d *R/file_contents.R
 00708cbfd83e1a71b9c8c1fdc2516141 *R/highlight.R
 efd6002ae157e7e96b7d67e4506c617f *R/parse.R
 e165698b118a2cee1e184fe6d59ca986 *R/pause.R
@@ -19,7 +19,7 @@ f67cc2400d3cf3ec714d786c2da6b84e *inst/htmlwidgets/lib/highlight/textmate.css
 243e151eeab6d5c1375440fd0f9112c9 *inst/htmlwidgets/lib/profvis/profvis.css
 1ac055acbc4f31d86ed1b4c78b15ce1b *inst/htmlwidgets/lib/profvis/profvis.js
 fbfaf87de560067baca923e490fbfff9 *inst/htmlwidgets/profvis.js
-f2f8711e0c2af50a1684dd8ebb5bbe71 *inst/htmlwidgets/profvis.yaml
+cb4ac92ba99a7ae8c384a2db4443a320 *inst/htmlwidgets/profvis.yaml
 4139128e4c879b31ec767ed03c64b6f6 *man/parse_rprof.Rd
 c34c7a1ab059137cd111d529db04a2e0 *man/pause.Rd
 2b13c5d591acc26087479d65572bd871 *man/print.profvis.Rd
