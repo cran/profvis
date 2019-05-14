@@ -1,7 +1,14 @@
+profvis 0.3.6
+=============
+
+* Added a profvis Shiny module, for starting/stopping the profiler during the execution of a Shiny application. This can be helpful if you don't want to profile the entire execution of an app, only a certain operation. To install the profvis module into your app, add `profvis_ui("profvis")` to your UI, and `callModule(profvis_server, "profvis")` to your server function.
+
+* Exported `parse_rprof` function.
+
 profvis 0.3.5
 =============
 
-* Fixed problem with development build of R where source refs are turned on by defaut (reported by Tomas Kalibera).
+* Fixed problem with development build of R where source refs are turned on by default (reported by Tomas Kalibera).
 
 profvis 0.3.4
 =============

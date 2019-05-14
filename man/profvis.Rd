@@ -5,8 +5,8 @@
 \title{Profile an R expression and visualize profiling data}
 \usage{
 profvis(expr = NULL, interval = 0.01, prof_output = NULL,
-  prof_input = NULL, width = NULL, height = NULL, split = c("h", "v"),
-  torture = 0)
+  prof_input = NULL, width = NULL, height = NULL, split = c("h",
+  "v"), torture = 0)
 }
 \arguments{
 \item{expr}{Code to profile. Not compatible with \code{prof_input}.}
@@ -37,7 +37,7 @@ split bar.}
   sampling profiler and garbage collection: when garbage collection triggers,
   memory allocations will be attributed to different lines of code. Using
   \code{torture = steps} helps prevent this, by making R trigger garbage
-  collection afer every \code{torture} memory allocation step.}
+  collection after every \code{torture} memory allocation step.}
 }
 \description{
 This function will run an R expression with profiling, and then return an
