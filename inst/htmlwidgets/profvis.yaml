@@ -10,9 +10,11 @@ dependencies:
     script:
       - d3.min.js
   - name: profvis
-    version: 0.3.6
+    version: 0.3.6.9000
     src: "htmlwidgets/lib/profvis"
-    script: profvis.js
+    script:
+      - profvis.js
+      - scroll.js
     stylesheet: profvis.css
   - name: highlight
     version: 6.2.0
