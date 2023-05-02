@@ -8,7 +8,10 @@
 #' @import stringr
 #' @export
 parse_rprof <- function(path = "Rprof.out", expr_source = NULL) {
-  lines <- readLines(path)
+  parse_rprof_lines(readLines(path), expr_source = expr_source)
+}
+parse_rprof_lines <- function(lines, expr_source = NULL) {
+  stopifnot(is_character(lines))
 
   if (length(lines) < 2) {
     stop("No parsing data available. Maybe your function was too fast?")
@@ -43,7 +46,7 @@ parse_rprof <- function(path = "Rprof.out", expr_source = NULL) {
   if (has_memory) {
     mem_data <- gsub("^:(\\d+:\\d+:\\d+:\\d+):.*", "\\1", prof_data)
     mem_data <- str_split(mem_data, ":")
-    prof_data <- gsub("^:\\d+:\\d+:\\d+:\\d+:", "\\1", prof_data)
+    prof_data <- zap_mem_prefix(prof_data)
   } else {
     mem_data <- rep(NA_character_, length(prof_data))
   }
@@ -59,16 +62,6 @@ parse_rprof <- function(path = "Rprof.out", expr_source = NULL) {
   # back to
   #  <GC> 1#7 "foo"
   prof_data <- gsub('^"<GC>",', '"<GC>" ', prof_data)
-
-  # Remove frames related to profvis itself, and all frames below it on the
-  # stack. Right now the bottom item can be `profvis`, `profvis::profvis`, or
-  # `<Anonymous>`, but once R 3.3 is widespread, the <Anonymous> part can be
-  # removed and the regex can be simplified to:
-  # ' *"force"(?!.*"force").*"(profvis::)?profvis".*$'
-  prof_data <- sub(
-    ' *"force" "doTryCatch"(?!.*"force").*"((profvis::)?profvis|<Anonymous>)".*$',
-    '', prof_data, perl = TRUE
-  )
 
   # # Split by ' ' for call stack
   # prof_data <- str_split(prof_data, " ")
@@ -260,6 +253,26 @@ parse_rprof <- function(path = "Rprof.out", expr_source = NULL) {
   )
 }
 
+zap_mem_prefix <- function(lines) {
+  gsub("^:\\d+:\\d+:\\d+:\\d+:", "\\1", lines)
+}
+zap_file_labels <- function(lines) {
+  lines[!grepl("^#", lines)]
+}
+zap_srcref <- function(lines) {
+  gsub(" \\d+#\\d+", "", lines)
+}
+zap_meta_data <- function(lines) {
+  lines <- zap_file_labels(lines)
+  lines <- zap_mem_prefix(lines)
+  lines
+}
+zap_header <- function(lines) {
+  lines <- lines[-1]
+  lines <- zap_file_labels(lines)
+  lines
+}
+
 # For any rows where label is NA and there's a srcref, insert the line of code
 # as the label.
 insert_code_line_labels <- function(prof_data, file_contents) {
@@ -296,4 +309,52 @@ trim_filenames <- function(filenames) {
   filenames <- sub("^.*?([^/]+/(R|inst)/.*\\.R$)", "\\1", filenames, ignore.case = TRUE)
 
   filenames
+}
+
+# The profile data is sorted by time by default. To sort it
+# alphabetically we create a data frame of stacks where columns
+# represent stack depth and rows represent samples.
+# `vctrs::vec_order()` then gives us the sorting key we need.
+prof_sort <- function(prof) {
+  # Split profile data frame by `time`. Each split corresponds to a
+  # single line of the original Rprof output, i.e. a single sampled
+  # stack.
+  prof_split <- vctrs::vec_split(prof, prof$time)$val
+
+  max_depth <- max(map_int(prof_split, nrow))
+  n_samples <- length(prof_split)
+
+  # Extract labels (function names for the stack frames) and pad
+  # them with missing values so they are of equal lengths
+  pad <- function(x) x[seq_len(max_depth)]
+  stacks <- map(prof_split, function(x) pad(rev(x$label)))
+
+  # Transpose into a data frame. The (unnamed) columns represent
+  # increasing depths in the stacks.
+  stacks <- map(transpose(stacks), simplify)
+  stacks <- vctrs::data_frame(!!!stacks, .name_repair = "minimal")
+
+  # Reorder the profile data according to the sort key of the
+  # transposed stacks
+  key <- vctrs::vec_order(stacks)
+  stacks <- vctrs::vec_slice(stacks, key)
+  prof_split <- prof_split[key]
+
+  # Now that stacks are in alphabetical order we sort them again by
+  # contiguous run
+  runs <- map(stacks, function(stack) {
+    times <- vctrs::vec_unrep(stack)$times
+    rep(rev(order(times)), times)
+  })
+  runs <- vctrs::data_frame(!!!runs, .name_repair = "minimal")
+  prof_split <- prof_split[vctrs::vec_order(runs)]
+
+  # Assign an increasing `time` sequence in each split
+  prof_split <- map2(seq_len(n_samples), prof_split, function(n, split) {
+    split$time <- n
+    split
+  })
+
+  # Put the sorted splits back together
+  vctrs::vec_rbind(!!!prof_split)
 }
