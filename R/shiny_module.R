@@ -1,12 +1,12 @@
-#' Profvis UI for Shiny Apps
+#' profvis UI for Shiny Apps
 #'
-#' Use this Shiny module to inject Profvis controls into your Shiny app. The
-#' Profvis Shiny module injects UI that can be used to start and stop profiling,
-#' and either view the results in the Profvis UI or download the raw .Rprof
+#' Use this Shiny module to inject profvis controls into your Shiny app. The
+#' profvis Shiny module injects UI that can be used to start and stop profiling,
+#' and either view the results in the profvis UI or download the raw .Rprof
 #' data. It is highly recommended that this be used for testing and debugging
 #' only, and not included in production apps!
 #'
-#' The usual way to use Profvis with Shiny is to simply call
+#' The usual way to use profvis with Shiny is to simply call
 #' `profvis(shiny::runApp())`, but this may not always be possible or desirable:
 #' first, if you only want to profile a particular interaction in the Shiny app
 #' and not capture all the calculations involved in starting up the app and
@@ -16,7 +16,7 @@
 #' For more details on how to invoke Shiny modules, see [this
 #' article](https://shiny.rstudio.com/articles/modules.html).
 #'
-#' @param id Output id from \code{profvis_server}.
+#' @param id Output id from `profvis_server`.
 #'
 #' @examples
 #' # In order to avoid "Hit <Return> to see next plot" prompts,
@@ -24,7 +24,6 @@
 #'
 #' if(interactive()) {
 #'   library(shiny)
-#'   library(ggplot2)
 #'   shinyApp(
 #'     fluidPage(
 #'       plotOutput("plot"),
@@ -36,7 +35,7 @@
 #'
 #'       output$plot <- renderPlot({
 #'         input$new
-#'         ggplot(diamonds, aes(carat, price)) + geom_point()
+#'         boxplot(mpg ~ cyl, data = mtcars)
 #'       })
 #'     }
 #'   )
@@ -75,7 +74,7 @@ profvis_ui <- function(id) {
 }
 
 #' @param input,output,session Arguments provided by
-#'   \code{\link[shiny]{callModule}}.
+#'   [shiny::callModule()].
 #' @param dir Output directory to save Rprof files.
 #'
 #' @rdname profvis_ui

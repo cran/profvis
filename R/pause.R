@@ -1,9 +1,9 @@
 #' Pause an R process
 #'
 #' This function pauses an R process for some amount of time. It differs from
-#' \code{\link{Sys.sleep}} in that time spent in \code{pause} will show up in
-#' profiler data. Another difference is that \code{pause} uses up 100\% of a CPU,
-#' whereas \code{Sys.sleep} does not.
+#' [Sys.sleep()] in that time spent in `pause` will show up in
+#' profiler data. Another difference is that `pause` uses up 100\% of a CPU,
+#' whereas `Sys.sleep` does not.
 #'
 #' @examples
 #' # Wait for 0.5 seconds
@@ -13,7 +13,10 @@
 #' @useDynLib profvis, .registration = TRUE, .fixes = "c_"
 #' @export
 pause <- function(seconds) {
-  .Call(c_profvis_pause, as.numeric(seconds))
+  if (is.integer(seconds)) {
+    seconds <- as.numeric(seconds)
+  }
+  .Call(c_profvis_pause, seconds)
 }
 
 # This guarantees that (1) `pause()` is always compiled, even on
@@ -21,7 +24,7 @@ pause <- function(seconds) {
 # turn ensures consistent profile output: if the function is not
 # compiled and doesn't contain srcrefs, `.Call()` is never included in
 # the profiles, even when `line.profiling` is set.
-on_load({
-  pause <- utils::removeSource(pause)
-  pause <- compiler::cmpfun(pause)
-})
+on_load_pause <- function() {
+  pause <<- utils::removeSource(pause)
+  pause <<- compiler::cmpfun(pause)
+}

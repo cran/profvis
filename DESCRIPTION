@@ -1,40 +1,48 @@
 Package: profvis
 Title: Interactive Visualizations for Profiling R Code
-Version: 0.3.8
+Version: 0.4.0
 Authors@R: c(
-    person("Winston", "Chang", email = "winston@rstudio.com", role = c("aut", "cre")),
-    person("Javier", "Luraschi", email = "javier@rstudio.com", role = "aut"),
+    person("Hadley", "Wickham", , "hadley@posit.co", role = c("aut", "cre")),
+    person("Winston", "Chang", role = "aut"),
+    person("Javier", "Luraschi", role = "aut"),
     person("Timothy", "Mastny", role = "aut"),
-    person(family = "RStudio", role = "cph"),
-    person(family = "jQuery Foundation", role = "cph", comment = "jQuery library"),
-    person(family = "jQuery contributors", role = c("ctb", "cph"), comment = "jQuery library; authors listed in inst/www/shared/jquery-AUTHORS.txt"),
-    person("Mike", "Bostock", role = c("ctb", "cph"), comment = "D3 library"),
-    person(family = "D3 contributors", role = "ctb", comment = "D3 library"),
-    person("Ivan", "Sagalaev", role = c("ctb", "cph"), comment = "highlight.js library")
-    )
+    person("Posit Software, PBC", role = c("cph", "fnd")),
+    person(, "jQuery Foundation", role = "cph",
+           comment = "jQuery library"),
+    person(, "jQuery contributors", role = c("ctb", "cph"),
+           comment = "jQuery library; authors listed in inst/htmlwidgets/lib/jquery/AUTHORS.txt"),
+    person("Mike", "Bostock", role = c("ctb", "cph"),
+           comment = "D3 library"),
+    person(, "D3 contributors", role = "ctb",
+           comment = "D3 library"),
+    person("Ivan", "Sagalaev", role = c("ctb", "cph"),
+           comment = "highlight.js library")
+  )
 Description: Interactive visualizations for profiling R code.
-Depends: R (>= 3.0)
-Imports: htmlwidgets (>= 0.3.2), purrr, rlang (>= 0.4.9), stringr,
-        vctrs
-License: GPL-3 | file LICENSE
-Suggests: knitr, ggplot2, rmarkdown, testthat (>= 3.0.0), devtools,
-        shiny, htmltools
-RoxygenNote: 7.2.3
-URL: https://rstudio.github.io/profvis/
-Encoding: UTF-8
+License: MIT + file LICENSE
+URL: https://profvis.r-lib.org, https://github.com/r-lib/profvis
+BugReports: https://github.com/r-lib/profvis/issues
+Depends: R (>= 4.0)
+Imports: htmlwidgets (>= 0.3.2), rlang (>= 1.1.0), vctrs
+Suggests: htmltools, knitr, rmarkdown, shiny, testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/Needs/website: tidyverse/tidytemplate, rmarkdown
 Config/testthat/edition: 3
+Encoding: UTF-8
+RoxygenNote: 7.3.2
 NeedsCompilation: yes
-Packaged: 2023-05-01 20:58:47 UTC; winston
-Author: Winston Chang [aut, cre],
+Packaged: 2024-09-19 19:26:06 UTC; hadleywickham
+Author: Hadley Wickham [aut, cre],
+  Winston Chang [aut],
   Javier Luraschi [aut],
   Timothy Mastny [aut],
-  RStudio [cph],
+  Posit Software, PBC [cph, fnd],
   jQuery Foundation [cph] (jQuery library),
   jQuery contributors [ctb, cph] (jQuery library; authors listed in
-    inst/www/shared/jquery-AUTHORS.txt),
+    inst/htmlwidgets/lib/jquery/AUTHORS.txt),
   Mike Bostock [ctb, cph] (D3 library),
   D3 contributors [ctb] (D3 library),
   Ivan Sagalaev [ctb, cph] (highlight.js library)
-Maintainer: Winston Chang <winston@rstudio.com>
+Maintainer: Hadley Wickham <hadley@posit.co>
 Repository: CRAN
-Date/Publication: 2023-05-02 18:00:02 UTC
+Date/Publication: 2024-09-20 11:50:10 UTC

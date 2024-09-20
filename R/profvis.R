@@ -3,41 +3,52 @@
 #' This function will run an R expression with profiling, and then return an
 #' htmlwidget for interactively exploring the profiling data.
 #'
-#' An alternate way to use \code{profvis} is to separately capture the profiling
-#' data to a file using \code{\link{Rprof}()}, and then pass the path to the
-#' corresponding data file as the \code{prof_input} argument to
-#' \code{profvis()}.
+#' An alternate way to use `profvis` is to separately capture the profiling
+#' data to a file using [Rprof()], and then pass the path to the
+#' corresponding data file as the `prof_input` argument to
+#' `profvis()`.
 #'
-#' @param expr Expression to profile. Not compatible with \code{prof_input}.
+#' @param expr Expression to profile. The expression will be turned into the
+#'   body of a zero-argument anonymous function which is then called repeatedly
+#'   as needed. This means that if you create variables inside of `expr` they
+#'   will not be available outside of it.
+#'
 #'   The expression is repeatedly evaluated until `Rprof()` produces
 #'   an output. It can _be_ a quosure injected with [rlang::inject()] but
 #'   it cannot _contain_ injected quosures.
+#'
+#'   Not compatible with `prof_input`.
 #' @param interval Interval for profiling samples, in seconds. Values less than
 #'   0.005 (5 ms) will probably not result in accurate timings
 #' @param prof_output Name of an Rprof output file or directory in which to save
-#'   profiling data. If \code{NULL} (the default), a temporary file will be used
+#'   profiling data. If `NULL` (the default), a temporary file will be used
 #'   and automatically removed when the function exits. For a directory, a
 #'   random filename is used.
 #'
-#' @param prof_input The path to an \code{\link{Rprof}} data file.  Not
-#'   compatible with \code{expr} or \code{prof_output}.
+#' @param prof_input The path to an [Rprof()] data file.  Not
+#'   compatible with `expr` or `prof_output`.
+#' @param timing The type of timing to use. Either `"elapsed"` (the
+#'  default) for wall clock time, or `"cpu"` for CPU time. Wall clock time
+#'  includes time spent waiting for other processes (e.g. waiting for a
+#'  web page to download) so is generally more useful.
+#'
+#'  If `NULL`, the default, will use elapsed time where possible, i.e.
+#'  on Windows or on R 4.4.0 or greater.
 #' @param width Width of the htmlwidget.
 #' @param height Height of the htmlwidget
-#' @param split Direction of split. Either \code{"v"} (the default) for
-#'   vertical, or \code{"h"} for horizontal. This is the orientation of the
-#'   split bar.
-#' @param torture Triggers garbage collection after every \code{torture} memory
+#' @param split Orientation of the split bar: either `"h"` (the default) for
+#'   horizontal or `"v"` for vertical.
+#' @param torture Triggers garbage collection after every `torture` memory
 #'   allocation call.
 #'
 #'   Note that memory allocation is only approximate due to the nature of the
 #'   sampling profiler and garbage collection: when garbage collection triggers,
 #'   memory allocations will be attributed to different lines of code. Using
-#'   \code{torture = steps} helps prevent this, by making R trigger garbage
-#'   collection after every \code{torture} memory allocation step.
+#'   `torture = steps` helps prevent this, by making R trigger garbage
+#'   collection after every `torture` memory allocation step.
 #' @param simplify Whether to simplify the profiles by removing
-#'   intervening frames caused by lazy evaluation. This only has an
-#'   effect on R 4.0. See the \code{filter.callframes} argument of
-#'   \code{\link{Rprof}()}.
+#'   intervening frames caused by lazy evaluation. Equivalent to the
+#'   `filter.callframes` argument to [Rprof()].
 #' @param rerun If `TRUE`, `Rprof()` is run again with `expr` until a
 #'   profile is actually produced. This is useful for the cases where
 #'   `expr` returns too quickly, before R had time to sample a
@@ -45,8 +56,8 @@
 #'   profiles. In this case, `profvis()` reruns `expr` until the
 #'   regexp matches the modal value of the profile stacks.
 #'
-#' @seealso \code{\link{print.profvis}} for printing options.
-#' @seealso \code{\link{Rprof}} for more information about how the profiling
+#' @seealso [print.profvis()] for printing options.
+#' @seealso [Rprof()] for more information about how the profiling
 #'   data is collected.
 #'
 #' @examples
@@ -86,21 +97,34 @@
 #' @import htmlwidgets
 #' @importFrom utils Rprof
 #' @export
-profvis <- function(expr = NULL, interval = 0.01, prof_output = NULL,
-                    prof_input = NULL, width = NULL, height = NULL,
-                    split = c("h", "v"), torture = 0, simplify = TRUE,
+profvis <- function(expr = NULL,
+                    interval = 0.01,
+                    prof_output = NULL,
+                    prof_input = NULL,
+                    timing = NULL,
+                    width = NULL,
+                    height = NULL,
+                    split = c("h", "v"),
+                    torture = 0,
+                    simplify = TRUE,
                     rerun = FALSE) {
+  check_exclusive(expr, prof_input)
   split <- match.arg(split)
   c(expr_q, env) %<-% enquo0_list(expr)
 
-  if (is.null(prof_input) && is.null(expr_q)) {
-    stop("profvis must be called with `expr` or `prof_input` ")
-  }
-  if (!is.null(prof_input) && (!is.null(expr_q) && !is.null(prof_output))) {
-    stop("The `prof_input` argument cannot be used with `expr` or `prof_output`.")
-  }
+
   if (interval < 0.005) {
     message("Intervals smaller than ~5ms will probably not result in accurate timings.")
+  }
+
+  if (is.null(timing)) {
+    if (has_event() || Sys.info()[["sysname"]] == "Windows") {
+      timing <- "elapsed"
+    } else {
+      timing <- "cpu"
+    }
+  } else {
+    timing <- arg_match(timing, c("elapsed", "cpu"))
   }
 
   if (!is.null(expr_q)) {
@@ -109,7 +133,7 @@ profvis <- function(expr = NULL, interval = 0.01, prof_output = NULL,
     # have "<text>". This value is used by the profiler as the filename listed
     # in the profiler output. We need to do this to distinguish code that was
     # run in the profvis({}) code block from code that was run outside of it.
-    # See https://github.com/rstudio/profvis/issues/57
+    # See https://github.com/r-lib/profvis/issues/57
     attr(expr_q, "srcfile")$filename <- "<expr>"
 
     # Keep original expression source code
@@ -141,39 +165,40 @@ profvis <- function(expr = NULL, interval = 0.01, prof_output = NULL,
       on.exit(gctorture2(step = 0), add = TRUE)
     }
 
-    rprof_args <- list(
+    rprof_args <- drop_nulls(list(
       interval = interval,
       line.profiling = TRUE,
       gc.profiling = TRUE,
-      memory.profiling = TRUE
-    )
-    if (getRversion() >= "4.0.3") {
-      rprof_args <- append(rprof_args, list(filter.callframes = simplify))
-    }
+      memory.profiling = TRUE,
+      event = if (has_event()) timing,
+      filter.callframes = simplify
+    ))
 
-    on.exit(Rprof(NULL), add = TRUE)
     if (remove_on_exit) {
       on.exit(unlink(prof_output), add = TRUE)
     }
+
+    # We call the quoted expression directly inside a function to make it
+    # easy to detect in both raw and simplified stack traces. The simplified
+    # case is particularly tricky because evaluating a promise fails to create
+    # a call on the trailing edges of the tree returned by simplification
+    `__profvis_execute__` <- new_function(list(), expr_q, env)
+
     repeat {
       inject(Rprof(prof_output, !!!rprof_args))
-      with_profvis_handlers(expr)
+      cnd <- with_profvis_handlers(`__profvis_execute__`())
       Rprof(NULL)
 
       lines <- readLines(prof_output)
+      if (!is.null(cnd)) {
+        break
+      }
       if (prof_matches(zap_header(lines), rerun)) {
         break
       }
-
-      env_bind_lazy(current_env(), expr = !!expr_q, .eval_env = env)
     }
 
-    # Must be in the same handler context as `expr` above to get the
-    # full stack suffix
-    with_profvis_handlers({
-      suffix <- rprof_current_suffix(env, simplify)
-      lines <- gsub(suffix, "", lines)
-    })
+    lines <- gsub('"__profvis_execute__".*$', "", lines)
   } else {
     # If we got here, we were provided a prof_input file instead of expr
     expr_source <- NULL
@@ -269,7 +294,7 @@ print.profvis <- function(x,
   }
 }
 
-#' Widget output function for use in Shiny
+#' Widget output and renders functions for use in Shiny
 #'
 #' @param outputId Output variable for profile visualization.
 #'
@@ -279,14 +304,17 @@ profvisOutput <- function(outputId, width = '100%', height = '600px'){
   shinyWidgetOutput(outputId, 'profvis', width, height, package = 'profvis')
 }
 
-#' Widget render function for use in Shiny
-#'
 #' @param expr An expression that returns a profvis object.
-#' @param env The environment in which to evaluate \code{expr}.
-#' @param quoted Is \code{expr} a quoted expression (with \code{\link{quote}()})?
-#'
+#' @param env The environment in which to evaluate `expr`.
+#' @param quoted Is `expr` a quoted expression (with [quote()])?
 #' @export
+#' @rdname profvisOutput
 renderProfvis <- function(expr, env = parent.frame(), quoted = FALSE) {
   if (!quoted) { expr <- substitute(expr) } # force quoted
   shinyRenderWidget(expr, profvisOutput, env, quoted = TRUE)
+}
+
+
+has_event <- function() {
+  getRversion() >= "4.4.0"
 }
